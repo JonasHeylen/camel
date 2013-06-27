@@ -50,6 +50,7 @@ public class CMISSessionFacade {
     private String repositoryId;
     private String query;
     private Session session;
+    private String objectFactoryClass;
 
     public CMISSessionFacade(String url) {
         this.url = url;
@@ -61,6 +62,9 @@ public class CMISSessionFacade {
         parameter.put(SessionParameter.ATOMPUB_URL, this.url);
         parameter.put(SessionParameter.USER, this.username);
         parameter.put(SessionParameter.PASSWORD, this.password);
+        if (this.objectFactoryClass != null) {
+            parameter.put(SessionParameter.OBJECT_FACTORY_CLASS, this.objectFactoryClass);
+        }
         if (this.repositoryId != null) {
             parameter.put(SessionParameter.REPOSITORY_ID, this.repositoryId);
             this.session = SessionFactoryLocator.getSessionFactory().createSession(parameter);
@@ -156,9 +160,9 @@ public class CMISSessionFacade {
 
     public Document getDocument(QueryResult queryResult) {
         if (CamelCMISConstants.CMIS_DOCUMENT.equals(queryResult.getPropertyValueById(PropertyIds.OBJECT_TYPE_ID))
-            || CamelCMISConstants.CMIS_DOCUMENT.equals(queryResult.getPropertyValueById(PropertyIds.BASE_TYPE_ID))) {
-            String objectId = (String)queryResult.getPropertyById(PropertyIds.OBJECT_ID).getFirstValue();
-            return (org.apache.chemistry.opencmis.client.api.Document)session.getObject(objectId);
+                || CamelCMISConstants.CMIS_DOCUMENT.equals(queryResult.getPropertyValueById(PropertyIds.BASE_TYPE_ID))) {
+            String objectId = (String) queryResult.getPropertyById(PropertyIds.OBJECT_ID).getFirstValue();
+            return (org.apache.chemistry.opencmis.client.api.Document) session.getObject(objectId);
         }
         return null;
     }
@@ -178,7 +182,7 @@ public class CMISSessionFacade {
     public boolean isObjectTypeVersionable(String objectType) {
         if (CamelCMISConstants.CMIS_DOCUMENT.equals(objectType)) {
             ObjectType typeDefinition = session.getTypeDefinition(objectType);
-            return ((DocumentType)typeDefinition).isVersionable();
+            return ((DocumentType) typeDefinition).isVersionable();
         }
         return false;
     }
@@ -187,7 +191,7 @@ public class CMISSessionFacade {
         return buf != null ? session.getObjectFactory()
                 .createContentStream(fileName, buf.length, mimeType, new ByteArrayInputStream(buf)) : null;
     }
-    
+
     public OperationContext createOperationContext() {
         return session.createOperationContext();
     }
@@ -218,5 +222,13 @@ public class CMISSessionFacade {
 
     public void setPageSize(int pageSize) {
         this.pageSize = pageSize;
+    }
+
+    public String getObjectFactoryClass() {
+        return objectFactoryClass;
+    }
+
+    public void setObjectFactoryClass(final String objectFactoryClass) {
+        this.objectFactoryClass = objectFactoryClass;
     }
 }

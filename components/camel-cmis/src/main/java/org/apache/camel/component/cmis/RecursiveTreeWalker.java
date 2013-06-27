@@ -24,7 +24,9 @@ import org.apache.chemistry.opencmis.client.api.Document;
 import org.apache.chemistry.opencmis.client.api.Folder;
 import org.apache.chemistry.opencmis.client.api.ItemIterable;
 import org.apache.chemistry.opencmis.client.api.OperationContext;
+import org.apache.chemistry.opencmis.commons.data.CmisExtensionElement;
 import org.apache.chemistry.opencmis.commons.data.ContentStream;
+import org.apache.chemistry.opencmis.commons.enums.ExtensionLevel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,6 +86,8 @@ public class RecursiveTreeWalker {
     private void processNonFolderNode(CmisObject cmisObject, Folder parentFolder) throws Exception {
         InputStream inputStream = null;
         Map<String, Object> properties = CMISHelper.objectProperties(cmisObject);
+        properties.put(CamelCMISConstants.CAMEL_CMIS_EXTENSIONS, cmisObject.getExtensions(ExtensionLevel.PROPERTIES));
+        properties.put(CamelCMISConstants.CAMEL_CMIS_ACL, cmisObject.getAcl());
         properties.put(CamelCMISConstants.CMIS_FOLDER_PATH, parentFolder.getPath());
         if (CMISHelper.isDocument(cmisObject) && readContent) {
             ContentStream contentStream = ((Document)cmisObject).getContentStream();
